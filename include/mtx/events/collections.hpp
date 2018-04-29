@@ -7,6 +7,7 @@
 #include "mtx/events/avatar.hpp"
 #include "mtx/events/canonical_alias.hpp"
 #include "mtx/events/create.hpp"
+#include "mtx/events/encrypted.hpp"
 #include "mtx/events/encryption.hpp"
 #include "mtx/events/guest_access.hpp"
 #include "mtx/events/history_visibility.hpp"
@@ -80,6 +81,7 @@ using TimelineEvents = mpark::variant<events::StateEvent<states::Aliases>,
                                       events::StateEvent<states::PinnedEvents>,
                                       events::StateEvent<states::PowerLevels>,
                                       events::StateEvent<states::Topic>,
+                                      events::EncryptedEvent<msgs::Encrypted>,
                                       events::RedactionEvent<msgs::Redaction>,
                                       events::Sticker,
                                       events::RoomEvent<msgs::Redacted>,

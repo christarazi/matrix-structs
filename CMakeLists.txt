@@ -41,6 +41,7 @@ set(SRC
     src/events/canonical_alias.cpp
     src/events/common.cpp
     src/events/create.cpp
+    src/events/encrypted.cpp
     src/events/encryption.cpp
     src/events/guest_access.cpp
     src/events/history_visibility.cpp
@@ -77,7 +78,7 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib/static
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
-install(DIRECTORY include/ 
+install(DIRECTORY include/
     DESTINATION include/${PROJECT_NAME}
     FILES_MATCHING PATTERN "*.hpp")
 

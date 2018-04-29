@@ -529,3 +529,66 @@ TEST(StateEvents, Topic)
         EXPECT_EQ(event.state_key, "");
         EXPECT_EQ(event.content.topic, "Test topic");
 }
+
+TEST(RoomEvents, Encrypted)
+{
+        json data = R"({
+          "content": {
+            "algorithm": "m.megolm.v1.aes-sha2",
+            "ciphertext": "AwgAEnACgAkLmt6qF84IK++J7UDH2Za1YVchHyprqTqsg2yyOwAtHaZTwyNg37afzg8f3r9IsN9r4RNFg7MaZencUJe4qvELiDiopUjy5wYVDAtqdBzer5bWRD9ldxp1FLgbQvBcjkkywYjCsmsq6+hArLd9oAQZnGKn/qLsK+5uNX3PaWzDRC9wZPQvWYYPCTov3jCwXKTPsLKIiTrcCXDqMvnn8m+T3zF/I2zqxg158tnUwWWIw51UO",
+            "device_id": "RJYKSTBOIE",
+            "sender_key": "IlRMeOPX2e0MurIyfWEucYBRVOEEUMrOHqn/8mLqMjA",
+            "session_id": "X3lUlvLELLYxeTx4yOVu6UDpasGEVO0Jbu+QFnm0cKQ"
+          },
+          "event_id": "$143273582443PhrSn:localhost",
+          "origin_server_ts": 1432735824653,
+          "room_id": "!jEsUZKDJdhlrceRyVU:localhost",
+          "sender": "@example:localhost",
+          "type": "m.room.encrypted",
+          "unsigned": {
+            "age": 146,
+            "transaction_id": "m1476648745605.19"
+          }
+        })"_json;
+
+        ns::EncryptedEvent<ns::msg::Encrypted> event = data;
+
+        EXPECT_EQ(event.type, ns::EventType::RoomEncrypted);
+        EXPECT_EQ(event.event_id, "$143273582443PhrSn:localhost");
+        EXPECT_EQ(event.room_id, "!jEsUZKDJdhlrceRyVU:localhost");
+        EXPECT_EQ(event.sender, "@example:localhost");
+        EXPECT_EQ(event.origin_server_ts, 1432735824653L);
+        EXPECT_EQ(event.unsigned_data.age, 146);
+        EXPECT_EQ(event.content.algorithm, "m.megolm.v1.aes-sha2");
+        EXPECT_EQ(
+          event.content.ciphertext,
+          "AwgAEnACgAkLmt6qF84IK++"
+          "J7UDH2Za1YVchHyprqTqsg2yyOwAtHaZTwyNg37afzg8f3r9IsN9r4RNFg7MaZencUJe4qvELiDiopUjy5wYVDAt"
+          "qdBzer5bWRD9ldxp1FLgbQvBcjkkywYjCsmsq6+hArLd9oAQZnGKn/"
+          "qLsK+5uNX3PaWzDRC9wZPQvWYYPCTov3jCwXKTPsLKIiTrcCXDqMvnn8m+T3zF/I2zqxg158tnUwWWIw51UO");
+        EXPECT_EQ(event.content.device_id, "RJYKSTBOIE");
+        EXPECT_EQ(event.content.sender_key, "IlRMeOPX2e0MurIyfWEucYBRVOEEUMrOHqn/8mLqMjA");
+        EXPECT_EQ(event.content.session_id, "X3lUlvLELLYxeTx4yOVu6UDpasGEVO0Jbu+QFnm0cKQ");
+
+        ns::msg::Encrypted e1;
+        // e1.algorithm  = "m.megolm.v1.aes-sha2";
+        e1.ciphertext = "AwgAEoABgw1DG6mgKwvrAJU+V7jPu3poEaujNWPnMtIO6+1kFHzEcK6vbYpbg/WlPq/"
+                        "B23wqKWJ3DIaBsV305VdpisGK7dMN5WgnnTp9JhtztxpCuXnX92rWFBUFM9+"
+                        "PC5xVJExVBm1qwv8xgWjD5NFqfcVsZ3jLGbGiftPHairq8bxPxTsjrblMHLpXyXLhK6A7YGTey"
+                        "okcrdXS+IQ4Apq1RLP+kw5RF6M8a/aK3UhUlSAf7OLjaj/03qEwE3TGNaBbLBdOxzoGpxNfQ8";
+        e1.device_id  = "YEGDJGLQTZ";
+        e1.sender_key = "FyYq6RrnjvsIw0XLGF1jHYlorPgDmJQd15lMJw3D7QI";
+        e1.session_id = "/bHcdWPHsJLFd8dkyvG0n7q/RTDmfBIc+gC4laHJCQQ";
+
+        json j = e1;
+        ASSERT_EQ(
+          j.dump(),
+          "{\"algorithm\":\"m.megolm.v1.aes-sha2\","
+          "\"ciphertext\":\"AwgAEoABgw1DG6mgKwvrAJU+V7jPu3poEaujNWPnMtIO6+1kFHzEcK6vbYpbg/"
+          "WlPq/B23wqKWJ3DIaBsV305VdpisGK7dMN5WgnnTp9JhtztxpCuXnX92rWFBUFM9"
+          "+PC5xVJExVBm1qwv8xgWjD5NFqfcVsZ3jLGbGiftPHairq8bxPxTsjrblMHLpXyXLhK6A7YGTeyokcrdXS"
+          "+IQ4Apq1RLP+kw5RF6M8a/aK3UhUlSAf7OLjaj/03qEwE3TGNaBbLBdOxzoGpxNfQ8\","
+          "\"device_id\":\"YEGDJGLQTZ\","
+          "\"sender_key\":\"FyYq6RrnjvsIw0XLGF1jHYlorPgDmJQd15lMJw3D7QI\","
+          "\"session_id\":\"/bHcdWPHsJLFd8dkyvG0n7q/RTDmfBIc+gC4laHJCQQ\"}");
+}

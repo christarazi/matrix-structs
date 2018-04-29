@@ -98,6 +98,16 @@ parse_timeline_events(const json &events,
 
                         break;
                 }
+                case events::EventType::RoomEncrypted: {
+                        try {
+                                container.emplace_back(
+                                  events::EncryptedEvent<mtx::events::msg::Encrypted>(e));
+                        } catch (json::exception &err) {
+                                log_error(err, e);
+                        }
+
+                        break;
+                }
                 case events::EventType::RoomEncryption: {
                         try {
                                 container.emplace_back(events::StateEvent<Encryption>(e));
@@ -420,6 +430,7 @@ parse_state_events(const json &events,
                         break;
                 }
                 case events::EventType::Sticker:
+                case events::EventType::RoomEncrypted: /* Does this need to be here? */
                 case events::EventType::RoomMessage:
                 case events::EventType::RoomPinnedEvents:
                 case events::EventType::RoomRedaction:
@@ -540,6 +551,7 @@ parse_stripped_events(const json &events,
                         break;
                 }
                 case events::EventType::Sticker:
+                case events::EventType::RoomEncrypted:
                 case events::EventType::RoomEncryption:
                 case events::EventType::RoomMessage:
                 case events::EventType::RoomRedaction:

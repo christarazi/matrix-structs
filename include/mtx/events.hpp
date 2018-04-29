@@ -22,6 +22,8 @@ enum class EventType
         RoomCanonicalAlias,
         /// m.room.create
         RoomCreate,
+        /// m.room.encrypted.
+        RoomEncrypted,
         /// m.room.encryption.
         RoomEncryption,
         /// m.room.guest_access
@@ -90,6 +92,9 @@ to_json(json &obj, const Event<Content> &event)
                 break;
         case EventType::RoomCreate:
                 obj["type"] = "m.room.create";
+                break;
+        case EventType::RoomEncrypted:
+                obj["type"] = "m.room.encrypted";
                 break;
         case EventType::RoomEncryption:
                 obj["type"] = "m.room.encryption";
@@ -344,6 +349,36 @@ from_json(const json &obj, RedactionEvent<Content> &event)
                 event.room_id = obj.at("room_id");
 
         event.redacts = obj.at("redacts").get<std::string>();
+}
+
+//! Extension of the RoomEvent.
+template<class Content>
+struct EncryptedEvent : public RoomEvent<Content>
+{};
+
+template<class Content>
+void
+to_json(json &obj, const EncryptedEvent<Content> &event)
+{
+        RoomEvent<Content> base_event = event;
+        to_json(obj, base_event);
+}
+
+template<class Content>
+void
+from_json(const json &obj, EncryptedEvent<Content> &event)
+{
+        event.content          = obj.at("content").get<Content>();
+        event.event_id         = obj.at("event_id");
+        event.origin_server_ts = obj.at("origin_server_ts");
+        event.sender           = obj.at("sender");
+        event.type             = getEventType(obj.at("type").get<std::string>());
+
+        if (obj.find("unsigned") != obj.end())
+                event.unsigned_data = obj.at("unsigned");
+
+        if (obj.find("room_id") != obj.end())
+                event.room_id = obj.at("room_id");
 }
 
 enum class MessageType
